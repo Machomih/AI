@@ -25,15 +25,20 @@ import random
 
 
 def is_final_state(state):
-    # initializam starea finala
-    final_state = list(range(1, 9))
-    final_state.append(0)
-    # final state ul e de forma [1,2,3,4,5,6,7,8,0]
+    final_states = [[1, 2, 3, 4, 5, 6, 7, 8, 0],
+                    [1, 2, 3, 4, 5, 6, 7, 0, 8],
+                    [1, 2, 3, 4, 5, 6, 0, 7, 8],
+                    [1, 2, 3, 4, 5, 0, 6, 7, 8],
+                    [1, 2, 3, 4, 0, 5, 6, 7, 8],
+                    [1, 2, 3, 0, 4, 5, 6, 7, 8],
+                    [1, 2, 0, 3, 4, 5, 6, 7, 8],
+                    [1, 0, 2, 3, 4, 5, 6, 7, 8],
+                    [0, 1, 2, 3, 4, 5, 6, 7, 8]]
 
-    if (state == final_state):
-        return True
-    else:
-        return False
+    for final_state in final_states:
+        if state == final_state:
+            return True
+    return False
 
 
 # initial_state = initialize_puzzle()
@@ -136,24 +141,27 @@ def iddfs(initial_state):
     max_depth = 1
 
     while True:
-        result = depth_limit_search(initial_state, max_depth)
+        visited_states = set()  # Initialize a set to keep track of visited states at each depth.
+        result = depth_limit_search(initial_state, max_depth, visited_states)
         if result is not None:
             return result
         max_depth = max_depth + 1
 
 
-def depth_limit_search(state, depth_limit):
-    return depth_limit_search_rec(state, depth_limit, 0, [])
+def depth_limit_search(state, depth_limit, visited_states):
+    return depth_limit_search_rec(state, depth_limit, 0, [], visited_states)
 
 
-def depth_limit_search_rec(state, depth_limit, depth, path):
+def depth_limit_search_rec(state, depth_limit, depth, path, visited_states):
     if depth == depth_limit:
         return None
 
     if is_final_state(state):
         return path
 
-    for direction in ["up", "down", "left", "right"]:
+    visited_states.add(tuple(state))  # Convert the state to a tuple and add it to the visited states set.
+
+    for direction in ["up", "left", "down", "right"]:
         if direction == "up":
             new_state = move_up(state)
         elif direction == "down":
@@ -162,11 +170,14 @@ def depth_limit_search_rec(state, depth_limit, depth, path):
             new_state = move_left(state)
         elif direction == "right":
             new_state = move_right(state)
-        if new_state != state:
+
+        if new_state != state and tuple(new_state) not in visited_states:
             print(new_state)
-            result = depth_limit_search_rec(new_state, depth_limit, depth + 1, path + [direction])
+            result = depth_limit_search_rec(new_state, depth_limit, depth + 1, path + [direction], visited_states)
             if result is not None:
                 return result
+
+    visited_states.remove(tuple(state))  # Remove the state from the visited states set when backtracking.
 
 
 initial_state = [2, 5, 3, 1, 0, 6, 4, 7, 8]
