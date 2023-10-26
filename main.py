@@ -155,6 +155,81 @@ def depth_limit_search_rec(state, depth_limit, depth, path):
                 if result is not None:
                     return  result
 
-initial_state =  [8, 6, 7, 2, 5, 4, 0, 3, 1]
-solution_path = iddfs(initial_state)
-print(solution_path)
+#EX:5 Inceput
+def manhattan(stare, stare_finala):
+
+    distanta = 0
+    for val in stare:
+        if val == 0:
+            continue
+        poz_curenta = stare.index(val)
+        poz_finala = stare_finala.index(val)
+        distanta += abs(poz_curenta // 3 - poz_finala // 3) + abs(poz_curenta % 3 - poz_finala % 3)
+
+    return  distanta
+
+def hamming(stare, stare_finala):
+    gresite = 0
+    for val, final in zip(stare, stare_finala):
+        if val != final and val != 0:
+            gresite += 1
+
+    return  gresite
+def piese_gresite(stare, stare_finala):
+    gresite = 0
+    for val, final in zip(stare, stare_finala):
+        if val != final:
+            gresite += 1
+
+    return gresite
+def greedy(stare, euristica, stare_finala):
+    steps = 0
+    while not is_final_state(stare):
+        pos_moves = []
+        for direction in ["up", "down", "left", "right"]:
+            if direction == "up" and validation_move(direction,stare) is not False:
+                euris_val = euristica(move_up(stare),stare_finala)
+                pos_moves.append((direction,euris_val))
+            elif direction == "down" and validation_move(direction,stare) is not False:
+                euris_val = euristica(move_down(stare), stare_finala)
+                pos_moves.append((direction, euris_val))
+            elif direction == "left" and validation_move(direction,stare) is not False:
+                euris_val = euristica(move_left(stare), stare_finala)
+                pos_moves.append((direction, euris_val))
+            elif direction == "right" and validation_move(direction,stare) is not False:
+                euris_val = euristica(move_right(stare), stare_finala)
+                pos_moves.append((direction, euris_val)) #pos_moves = [(direction, euris_val), (direction, euris_val)...]
+
+        if not pos_moves:
+            return None #ne am blocat, nu exista mutari posibile
+
+        pos_moves.sort(key=lambda x: x[1]) #sortam dupa euris_val
+        mutare, _ = pos_moves[0] # mutare primeste primul tuplu din pos_moves, mai exact doar functia de directie, ignorand a doua val din tuplu
+        if mutare == "up":
+            stare = move_up(stare)
+        elif mutare == "down":
+            stare = move_down(stare)
+        elif mutare == "left":
+            stare = move_left(stare)
+        elif mutare == "right":
+            stare = move_right(stare)
+
+        steps += 1
+
+euristici = [manhattan,hamming,piese_gresite]
+initial_state = [2, 5, 3, 1, 0, 6, 4, 7, 8]
+stare_finala = [1,2,3,4,5,6,7,8,0]
+
+for euristica in euristici:
+    result = greedy(initial_state, euristica, stare_finala)
+    if result is not None:
+        print(f"Euristica: {euristica.__name__}")
+        print(f"Nr de pasi necesari: {result}")
+
+    else:
+        print(f"Euristica: {euristica.__name__}")
+        print("No solution found")  #EX5 FINAL
+
+
+#solution_path = iddfs(initial_state) #Linia asta si cu aia de jos, sunt apelul ca sa rezolvam cu iddfs pt ex 4.
+#print(solution_path)
