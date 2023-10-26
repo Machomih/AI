@@ -155,7 +155,7 @@ def depth_limit_search(state, depth_limit, visited_states):
 def depth_limit_search_rec(state, depth_limit, depth, path, visited_states):
     if depth == depth_limit:
         return None
-<<<<<<< HEAD
+
 
     if is_final_state(state):
         return path
@@ -260,33 +260,7 @@ for euristica in euristici:
 
 #solution_path = iddfs(initial_state) #Linia asta si cu aia de jos, sunt apelul ca sa rezolvam cu iddfs pt ex 4.
 #print(solution_path)
-=======
-
-    if is_final_state(state):
-        return path
-
-    visited_states.add(tuple(state))  # Convert the state to a tuple and add it to the visited states set.
-
-    for direction in ["up", "left", "down", "right"]:
-        if direction == "up":
-            new_state = move_up(state)
-        elif direction == "down":
-            new_state = move_down(state)
-        elif direction == "left":
-            new_state = move_left(state)
-        elif direction == "right":
-            new_state = move_right(state)
-
-        if new_state != state and tuple(new_state) not in visited_states:
-            print(new_state)
-            result = depth_limit_search_rec(new_state, depth_limit, depth + 1, path + [direction], visited_states)
-            if result is not None:
-                return result
-
-    visited_states.remove(tuple(state))  # Remove the state from the visited states set when backtracking.
 
 
-initial_state = [2, 5, 3, 1, 0, 6, 4, 7, 8]
-solution_path = iddfs(initial_state)
-print(solution_path)
->>>>>>> 0f5d7706d5687617877143fc1801aa6faa107cbe
+
+
