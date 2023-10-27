@@ -226,7 +226,7 @@ def main():
         moves = greedy_search(instance, manhattan_distance)
         end_time = time.time()
         if moves != -1:
-            print(f"Soluția a fost găsită in {moves} mutări.")
+            print("Soluția a fost găsită in", {moves}, "mutări.")
         else:
             print("Nu s-a găsit soluție.")
         print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
@@ -237,18 +237,17 @@ def main():
         moves = greedy_search(instance, hamming_distance)
         end_time = time.time()
         if moves != -1:
-            print(f"Soluția a fost găsită in {moves} mutări.")
+            print("Soluția a fost găsită in", {moves}, "mutări.")
         else:
             print("Nu s-a găsit soluție.")
         print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
 
-        # Greedy cu distanta Euclidiana
         print("\nStrategia Greedy (Euclidiana):")
         start_time = time.time()
         moves = greedy_search(instance, euclidean_distance)
         end_time = time.time()
         if moves != -1:
-            print(f"Soluția a fost găsită in {moves} mutări.")
+            print("Soluția a fost găsită in", moves, "mutări.")
         else:
             print("Nu s-a găsit soluție.")
         print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
@@ -258,6 +257,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-# solution_path = iddfs(initial_state) #Linia asta si cu aia de jos, sunt apelul ca sa rezolvam cu iddfs pt ex 4.
-# print(solution_path)
