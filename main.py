@@ -1,27 +1,5 @@
-# Ex 1: Pentru reprezentarea unei instante vom folosi un array unidimensional in care fiecare element reprezinta
-#        o celula a matricii."
-#        state = [1,2,3,4,5,6,7,8,0] -> fiecare element  reprezinta o celula a matricii, 0 fiind celula goala
-#        Ordinea elementelor in array reprezinta si ordinea elementelor in matrice. Este mult mai usor sa prelucra,
-#        datele problemei astfel pentru scrierea si rezolvarea algoritmului.
-
-# Ex 2: Starea initiala este reprezentata de o asezare random a celulelor cu o celula goala. Pentru a obtine starea initiala,
-#        trebuie sa punem intr-un mod aleatoriu numerele de la 1 la 8 intr o matrice, o celula fiind populata de 0, reprezentand
-#        celula goala.
-#       Starea finala este reprezentata de aranjamentul celulelor in ordine crescatoare, ignorand celula goala, cea populata de 0.
-
-import random
-
-
-# def initialize_puzzle():
-
-# initializam lista si adaugam celula goala
-#   numbers = list(range(1, 9))
-#    numbers.append(0)
-
-# amestecam elemente intr o ordine aleatorie pentru a obtine starea initiala a problemei
-#    random.shuffle(numbers)
-
-#    return numbers
+import math
+import time
 
 
 def is_final_state(state):
@@ -41,30 +19,15 @@ def is_final_state(state):
     return False
 
 
-# initial_state = initialize_puzzle()
-
-# print("The initial form of the puzzle is: ", initial_state)
-
-# if is_final_state(initial_state):
-#   print("The initial state is  the final state.")
-# else:
-#   print("The initial state is not the final state.")
-
-
-# Ex 3 si 4: Vom defini 4 functii de miscare (move_up, move_down, move_left si move_right) dupa care vom defini o functie de control
-#       ce ne va spune daca o miscare intr o anumita directie este valida
-
-
 def empty_cell_location(state):
     return state.index(0)
 
 
-# functia de control ce valideaza o miscare
 def validation_move(direction, state):
     empty_cell = empty_cell_location(state)
 
     if direction == "up":
-        if empty_cell >= 3:  # verificam daca celula goala nu  este in bottom line
+        if empty_cell >= 3:
             return True
         else:
             return False
@@ -156,7 +119,6 @@ def depth_limit_search_rec(state, depth_limit, depth, path, visited_states):
     if depth == depth_limit:
         return None
 
-
     if is_final_state(state):
         return path
 
@@ -173,94 +135,129 @@ def depth_limit_search_rec(state, depth_limit, depth, path, visited_states):
             new_state = move_right(state)
 
         if new_state != state and tuple(new_state) not in visited_states:
-            print(new_state)
             result = depth_limit_search_rec(new_state, depth_limit, depth + 1, path + [direction], visited_states)
             if result is not None:
                 return result
 
-    visited_states.remove(tuple(state))  # Remove the state from the visited states set when backtracking.
+    visited_states.remove(tuple(state))
 
 
+# EX:5 Inceput
+def manhattan_distance(state):
+    distance = 0
+    for i in range(9):
+        if state[i] != 0:
+            correct_row = (state[i] - 1) // 3
+            correct_col = (state[i] - 1) % 3
 
-#EX:5 Inceput
-def manhattan(stare, stare_finala):
+            current_row = i // 3
+            current_col = i % 3
 
-    distanta = 0
-    for val in stare:
-        if val == 0:
+            distance += abs(correct_row - current_row) + abs(correct_col - current_col)
+    return distance
+
+
+def hamming_distance(state):
+    distance = 0
+    for i in range(9):
+        if state[i] != 0 and state[i] != i + 1:  # Verifică dacă fiecare piesă este la locul corect.
+            distance += 1
+    return distance
+
+
+def euclidean_distance(state):
+    distance = 0
+    for i in range(9):
+        if state[i] != 0:
+            correct_row = (state[i] - 1) // 3
+            correct_col = (state[i] - 1) % 3
+
+            current_row = i // 3
+            current_col = i % 3
+
+            distance += ((correct_row - current_row) ** 2 + (correct_col - current_col) ** 2) ** 0.5
+    return distance
+
+
+def greedy_search(state, heuristic):
+    visited = set()
+    queue = [(state, 0)]
+    while queue:
+        current_state, moves = queue.pop(0)
+        if tuple(current_state) in visited:
             continue
-        poz_curenta = stare.index(val)
-        poz_finala = stare_finala.index(val)
-        distanta += abs(poz_curenta // 3 - poz_finala // 3) + abs(poz_curenta % 3 - poz_finala % 3)
-
-    return  distanta
-
-def hamming(stare, stare_finala):
-    gresite = 0
-    for val, final in zip(stare, stare_finala):
-        if val != final and val != 0:
-            gresite += 1
-
-    return  gresite
-def piese_gresite(stare, stare_finala):
-    gresite = 0
-    for val, final in zip(stare, stare_finala):
-        if val != final:
-            gresite += 1
-
-    return gresite
-def greedy(stare, euristica, stare_finala):
-    steps = 0
-    while not is_final_state(stare):
-        pos_moves = []
-        for direction in ["up", "down", "left", "right"]:
-            if direction == "up" and validation_move(direction,stare) is not False:
-                euris_val = euristica(move_up(stare),stare_finala)
-                pos_moves.append((direction,euris_val))
-            elif direction == "down" and validation_move(direction,stare) is not False:
-                euris_val = euristica(move_down(stare), stare_finala)
-                pos_moves.append((direction, euris_val))
-            elif direction == "left" and validation_move(direction,stare) is not False:
-                euris_val = euristica(move_left(stare), stare_finala)
-                pos_moves.append((direction, euris_val))
-            elif direction == "right" and validation_move(direction,stare) is not False:
-                euris_val = euristica(move_right(stare), stare_finala)
-                pos_moves.append((direction, euris_val)) #pos_moves = [(direction, euris_val), (direction, euris_val)...]
-
-        if not pos_moves:
-            return None #ne am blocat, nu exista mutari posibile
-
-        pos_moves.sort(key=lambda x: x[1]) #sortam dupa euris_val
-        mutare, _ = pos_moves[0] # mutare primeste primul tuplu din pos_moves, mai exact doar functia de directie, ignorand a doua val din tuplu
-        if mutare == "up":
-            stare = move_up(stare)
-        elif mutare == "down":
-            stare = move_down(stare)
-        elif mutare == "left":
-            stare = move_left(stare)
-        elif mutare == "right":
-            stare = move_right(stare)
-
-        steps += 1
-
-euristici = [manhattan,hamming,piese_gresite]
-initial_state = [2, 5, 3, 1, 0, 6, 4, 7, 8]
-stare_finala = [1,2,3,4,5,6,7,8,0]
-
-for euristica in euristici:
-    result = greedy(initial_state, euristica, stare_finala)
-    if result is not None:
-        print(f"Euristica: {euristica.__name__}")
-        print(f"Nr de pasi necesari: {result}")
-
-    else:
-        print(f"Euristica: {euristica.__name__}")
-        print("No solution found")  #EX5 FINAL
+        visited.add(tuple(current_state))
+        if is_final_state(current_state):
+            return moves
+        neighbors = [move_up(current_state), move_down(current_state), move_left(current_state),
+                     move_right(current_state)]
+        neighbors = [n for n in neighbors if n != current_state]  # elimină stările care nu s-au schimbat
+        neighbors.sort(key=lambda x: heuristic(x))
+        for neighbor in neighbors:
+            queue.append((neighbor, moves + 1))
+    return -1
 
 
-#solution_path = iddfs(initial_state) #Linia asta si cu aia de jos, sunt apelul ca sa rezolvam cu iddfs pt ex 4.
-#print(solution_path)
+def main():
+    instances = [
+        [8, 6, 7, 2, 5, 4, 3, 0, 1],
+        [2, 5, 3, 1, 0, 6, 4, 7, 8],
+        [2, 7, 5, 0, 8, 4, 3, 1, 6]]
+
+    for idx, instance in enumerate(instances):
+        print(f"----- Instanța {idx + 1} -----")
+        print("Stare inițială:", instance)
+
+        # IDDFS
+        print("\nStrategia IDDFS:")
+        start_time = time.time()
+        moves = iddfs(instance)
+        end_time = time.time()
+        if moves is not None:
+            print(f"Soluția a fost găsită in {len(moves)} mutări.")
+            print("Mutările:", moves)
+        else:
+            print("Nu s-a găsit soluție.")
+        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+
+        # Greedy cu distanta Manhattan
+        print("\nStrategia Greedy (Manhattan):")
+        start_time = time.time()
+        moves = greedy_search(instance, manhattan_distance)
+        end_time = time.time()
+        if moves != -1:
+            print(f"Soluția a fost găsită in {moves} mutări.")
+        else:
+            print("Nu s-a găsit soluție.")
+        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+
+        # Greedy cu distanta Hamming
+        print("\nStrategia Greedy (Hamming):")
+        start_time = time.time()
+        moves = greedy_search(instance, hamming_distance)
+        end_time = time.time()
+        if moves != -1:
+            print(f"Soluția a fost găsită in {moves} mutări.")
+        else:
+            print("Nu s-a găsit soluție.")
+        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+
+        # Greedy cu distanta Euclidiana
+        print("\nStrategia Greedy (Euclidiana):")
+        start_time = time.time()
+        moves = greedy_search(instance, euclidean_distance)
+        end_time = time.time()
+        if moves != -1:
+            print(f"Soluția a fost găsită in {moves} mutări.")
+        else:
+            print("Nu s-a găsit soluție.")
+        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+
+        print("\n")
 
 
+if __name__ == "__main__":
+    main()
 
-
+# solution_path = iddfs(initial_state) #Linia asta si cu aia de jos, sunt apelul ca sa rezolvam cu iddfs pt ex 4.
+# print(solution_path)
