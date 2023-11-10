@@ -181,20 +181,23 @@ def euclidean_distance(state):
 
 def greedy_search(state, heuristic):
     visited = set()
-    queue = [(state, 0)]
+    queue = [(state, 0, [])]  # Adăugăm o listă goală pentru a stoca mutările pentru starea inițială
     while queue:
-        current_state, moves = queue.pop(0)
+        current_state, moves, path = queue.pop(0)  # Adăugăm path pentru a stoca mutările efectuate până acum
         if tuple(current_state) in visited:
             continue
         visited.add(tuple(current_state))
         if is_final_state(current_state):
+            print("Mutările efectuate:", path)  # Afișăm mutările efectuate până la găsirea soluției
             return moves
-        neighbors = [move_up(current_state), move_down(current_state), move_left(current_state),
-                     move_right(current_state)]
-        neighbors = [n for n in neighbors if n != current_state]  # elimină stările care nu s-au schimbat
-        neighbors.sort(key=lambda x: heuristic(x))
-        for neighbor in neighbors:
-            queue.append((neighbor, moves + 1))
+        neighbors_states = [move_up(current_state), move_down(current_state), move_left(current_state),
+                            move_right(current_state)]
+        neighbors_directions = ["up", "down", "left", "right"]  # Aceasta va ajuta la stocarea direcției mutării
+        neighbors = list(zip(neighbors_states, neighbors_directions))
+        neighbors = [(n, d) for n, d in neighbors if n != current_state]
+        neighbors.sort(key=lambda x: heuristic(x[0]))
+        for neighbor, direction in neighbors:
+            queue.append((neighbor, moves + 1, path + [direction]))  # Adăugăm direcția la path
     return -1
 
 
@@ -214,11 +217,11 @@ def main():
         moves = iddfs(instance)
         end_time = time.time()
         if moves is not None:
-            print(f"Soluția a fost găsită in {len(moves)} mutări.")
+            print("Soluția a fost găsită in", len(moves), "mutări.")
             print("Mutările:", moves)
         else:
             print("Nu s-a găsit soluție.")
-        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+        print(f"Durata execuției: {end_time - start_time:.2f} secunde.")
 
         # Greedy cu distanta Manhattan
         print("\nStrategia Greedy (Manhattan):")
@@ -226,10 +229,10 @@ def main():
         moves = greedy_search(instance, manhattan_distance)
         end_time = time.time()
         if moves != -1:
-            print("Soluția a fost găsită in", {moves}, "mutări.")
+            print("Soluția a fost găsită in", moves, "mutări.")
         else:
             print("Nu s-a găsit soluție.")
-        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+        print(f"Durata execuției: {end_time - start_time:.2f} secunde.")
 
         # Greedy cu distanta Hamming
         print("\nStrategia Greedy (Hamming):")
@@ -237,10 +240,10 @@ def main():
         moves = greedy_search(instance, hamming_distance)
         end_time = time.time()
         if moves != -1:
-            print("Soluția a fost găsită in", {moves}, "mutări.")
+            print("Soluția a fost găsită in", moves, "mutări.")
         else:
             print("Nu s-a găsit soluție.")
-        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+        print(f"Durata execuției: {end_time - start_time:.2f} secunde.")
 
         print("\nStrategia Greedy (Euclidiana):")
         start_time = time.time()
@@ -250,7 +253,7 @@ def main():
             print("Soluția a fost găsită in", moves, "mutări.")
         else:
             print("Nu s-a găsit soluție.")
-        print(f"Durata execuției: {end_time - start_time:.4f} secunde.")
+        print(f"Durata execuției: {end_time - start_time:.2f} secunde.")
 
         print("\n")
 
