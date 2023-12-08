@@ -3,7 +3,7 @@ import pylab as pl
 import matplotlib.pyplot as plt
 import time
 
-dictionar_q = {}
+q_tabel = {}
 
 
 class LumeaGrilei(object):
@@ -75,12 +75,12 @@ def LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma=1, ep_max=3
     lume.seteazaTerminal(stareStart, stareSosire)
 
     for stare in range(lume.randuri * lume.coloane):
-        dictionar_q[stare] = {}
+        q_tabel[stare] = {}
         for act in lume.lista_actiuni:
             if lume.verificaTerminal(stare):
-                dictionar_q[stare][act] = 0
+                q_tabel[stare][act] = 0
             else:
-                dictionar_q[stare][act] = np.random.rand()
+                q_tabel[stare][act] = np.random.rand()
 
     def actiuneLacom(_dictionar_q):
         act_lacom = ''
@@ -111,14 +111,14 @@ def LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma=1, ep_max=3
         traiectorie = []
         recompensa_totala = 0
         while not lume.verificaTerminal(s):
-            act = epsLacom(ep, dictionar_q[s])
+            act = epsLacom(ep, q_tabel[s])
             s_urm = lume.urmatoareaStare(s, act)
             recompensa = lume.functieRecompensa(s_urm)
 
             recompensa_totala += recompensa
 
-            act_urm = actiuneLacom(dictionar_q[s_urm])
-            dictionar_q[s][act] += alfa * (recompensa + gamma * dictionar_q[s_urm][act_urm] - dictionar_q[s][act])
+            act_urm = actiuneLacom(q_tabel[s_urm])
+            q_tabel[s][act] += alfa * (recompensa + gamma * q_tabel[s_urm][act_urm] - q_tabel[s][act])
 
             traiectorie.append(s)
 
@@ -135,7 +135,7 @@ def afiseazaPolitica(lume):
         if lume.verificaTerminal(stare):
             harta_politicii[stare // lume.coloane][stare % lume.coloane] = 'G'
         else:
-            cea_mai_buna_actiune = max(dictionar_q[stare], key=dictionar_q[stare].get)
+            cea_mai_buna_actiune = max(q_tabel[stare], key=q_tabel[stare].get)
             harta_politicii[stare // lume.coloane][stare % lume.coloane] = cea_mai_buna_actiune[0]
     print(harta_politicii)
 

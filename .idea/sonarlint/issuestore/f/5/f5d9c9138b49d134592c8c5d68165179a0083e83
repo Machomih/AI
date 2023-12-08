@@ -15,7 +15,7 @@ zpython:S117J"WRename this parameter "stareSosire" to match the regular expre
 ypython:S117J"VRename this parameter "stareStart" to match the regular expression ^[_a-z][a-z0-9_]*$.(ş…ûÆşÿÿÿÿ8¡ÅÉ¾Ä1
 python:S1542J"[Rename function "LumeaGrilei_QLearning" to match the regular expression ^[a-z_][a-z0-9_]*$.(ş…ûÆşÿÿÿÿ8¢ÅÉ¾Ä1
 xpython:S3776J"TRefactor this function to reduce its Cognitive Complexity from 21 to the 15 allowed.(ş…ûÆşÿÿÿÿ8¢ÅÉ¾Ä1
-cpython:S6711S"DUse a "numpy.random.Generator" here instead of this legacy function.(ªªİı8£ÅÉ¾Ä1
+cpython:S6711S"DUse a "numpy.random.Generator" here instead of this legacy function.(Ë©©›8£ÅÉ¾Ä1
 vpython:S1542U"RRename function "actiuneLacom" to match the regular expression ^[a-z_][a-z0-9_]*$.(ç—£ıÿÿÿÿ8¤ÅÉ¾Ä1
 Rpython:S1172^".Remove the unused function parameter "episod".(¯¤šùÿÿÿÿ8¤ÅÉ¾Ä1
 rpython:S1542^"NRename function "epsLacom" to match the regular expression ^[a-z_][a-z0-9_]*$.(¯¤šùÿÿÿÿ8¥ÅÉ¾Ä1
