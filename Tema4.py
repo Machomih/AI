@@ -1,139 +1,216 @@
 import numpy as np
-import pandas as pd
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+import pylab as pl
+import matplotlib.pyplot as plt
+import time
 
-# Pasul 1: Citirea și pregătirea datelor
-data = pd.read_csv('seeds_dataset.txt', sep="\t", header=None)
-features = data.iloc[:, :-1].values
-labels = data.iloc[:, -1].values - 1
-
-scaler = StandardScaler()
-scaled_features = scaler.fit_transform(features)
-
-train_features, test_features, train_labels, test_labels = train_test_split(scaled_features, labels, test_size=0.2,
-                                                                            random_state=42)
-
-# Pasul 2: Inițializarea rețelei
-num_features = features.shape[1]
-num_hidden_neurons = 10
-num_output_classes = len(np.unique(labels))
-learning_rate = 0.01
-num_epochs = 1000
-
-weights_input_hidden = np.random.randn(num_features, num_hidden_neurons)
-bias_hidden = np.zeros((1, num_hidden_neurons))
-weights_hidden_output = np.random.randn(num_hidden_neurons, num_output_classes)
-bias_output = np.zeros((1, num_output_classes))
+dictionar_q = {}
 
 
-# Pasul 3: Definirea funcțiilor de activare și eroare
-def relu(x):
-    return np.maximum(0, x)
+class LumeaGrilei(object):
+
+    def __init__(self):
+        super(LumeaGrilei, self).__init__()
+        self.start = 0
+        self.sosire = 0
+        self.randuri = 7
+        self.coloane = 10
+        self.x_max = self.coloane - 1
+        self.y_max = self.randuri - 1
+        self.vant_1 = [3, 4, 5, 8]
+        self.vant_2 = [6, 7]
+        self.lista_actiuni = ['N', 'E', 'S', 'V']
+
+    def celula(self, poz):
+        return poz[1] + self.coloane * poz[0]
+
+    def seteazaTerminal(self, stareStart, stareSosire):
+        self.start = self.celula(stareStart)
+        self.sosire = self.celula(stareSosire)
+
+    def urmatoareaStare(self, stare, actiune):
+        x = stare % self.coloane
+        y = (stare - x) / self.coloane
+        del_x = 0
+        del_y = 0
+        if actiune == 'E':
+            del_x = 1
+        elif actiune == 'V':
+            del_x = -1
+        elif actiune == 'N':
+            del_y = -1
+        elif actiune == 'S':
+            del_y = 1
+        else:
+            raise ('Actiune Invalida! Actiunile trebuie sa fie in: ', self.lista_actiuni)
+        nou_x = max(0, min(x + del_x, self.x_max))
+        nou_y = max(0, min(y + del_y, self.y_max))
+        if nou_x in self.vant_1:
+            nou_y = max(0, nou_y - 1)
+        if nou_x in self.vant_2:
+            nou_y = max(0, nou_y - 2)
+
+        return self.celula((nou_y, nou_x))
+
+    def verificaTerminal(self, stare):
+        return stare == self.sosire
+
+    def functieRecompensa(self, stare_urmatoare):
+        if stare_urmatoare == self.sosire:
+            return 0
+        else:
+            return -1
 
 
-def relu_derivative(x):
-    return x > 0
+def caleTraiectorie(lume, traiectorie):
+    harta_lume = np.zeros((lume.randuri, lume.coloane))
+    for i, stare in enumerate(traiectorie):
+        x = int(stare % lume.coloane)
+        y = int((stare - x) / lume.coloane)
+        harta_lume[y, x] = i + 1
+    print(harta_lume)
+    print("\n")
 
 
-def softmax(x):
-    exp_x = np.exp(x - np.max(x))
-    return exp_x / exp_x.sum(axis=1, keepdims=True)
+def LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma=1, ep_max=300, eps=0.1):
+    lume.seteazaTerminal(stareStart, stareSosire)
+
+    for stare in range(lume.randuri * lume.coloane):
+        dictionar_q[stare] = {}
+        for act in lume.lista_actiuni:
+            if lume.verificaTerminal(stare):
+                dictionar_q[stare][act] = 0
+            else:
+                dictionar_q[stare][act] = np.random.rand()
+
+    def actiuneLacom(_dictionar_q):
+        act_lacom = ''
+        max_q = -1e10
+        for act in lume.lista_actiuni:
+            if _dictionar_q[act] > max_q:
+                act_lacom = act
+                max_q = _dictionar_q[act]
+        return act_lacom
+
+    def epsLacom(episod, dictionar_q):
+        m = len(lume.lista_actiuni)
+        act_lacom = actiuneLacom(dictionar_q)
+        p = []
+        for act in lume.lista_actiuni:
+            if act == act_lacom:
+                p.append((eps * 1. / m) + 1 - eps)
+            else:
+                p.append(eps * 1. / m)
+        alegere = np.random.choice(lume.lista_actiuni, size=1, p=p)
+        return alegere[0]
+
+    ep_cu_pas = []
+    traiectorie = []
+    recompense_totale = []
+    for ep in range(1, ep_max + 1):
+        s = lume.start
+        traiectorie = []
+        recompensa_totala = 0
+        while not lume.verificaTerminal(s):
+            act = epsLacom(ep, dictionar_q[s])
+            s_urm = lume.urmatoareaStare(s, act)
+            recompensa = lume.functieRecompensa(s_urm)
+
+            recompensa_totala += recompensa
+
+            act_urm = actiuneLacom(dictionar_q[s_urm])
+            dictionar_q[s][act] += alfa * (recompensa + gamma * dictionar_q[s_urm][act_urm] - dictionar_q[s][act])
+
+            traiectorie.append(s)
+
+            s = s_urm
+            ep_cu_pas.append(ep)
+        traiectorie.append(lume.sosire)
+        recompense_totale.append(recompensa_totala)
+    return traiectorie, ep_cu_pas, recompense_totale
 
 
-def cross_entropy_loss(predicted, actual):
-    samples = actual.shape[0]
-    loss = -np.sum(actual * np.log(predicted)) / samples
-    return loss
+def afiseazaPolitica(lume):
+    harta_politicii = np.full((lume.randuri, lume.coloane), ' ')
+    for stare in range(lume.randuri * lume.coloane):
+        if lume.verificaTerminal(stare):
+            harta_politicii[stare // lume.coloane][stare % lume.coloane] = 'G'
+        else:
+            cea_mai_buna_actiune = max(dictionar_q[stare], key=dictionar_q[stare].get)
+            harta_politicii[stare // lume.coloane][stare % lume.coloane] = cea_mai_buna_actiune[0]
+    print(harta_politicii)
 
 
-# Pasul 4: Propagarea înainte
-def forward_pass(inputs, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output):
-    hidden_layer_input = np.dot(inputs, weights_input_hidden) + bias_hidden
-    hidden_layer_output = relu(hidden_layer_input)
-    output_layer_input = np.dot(hidden_layer_output, weights_hidden_output) + bias_output
-    predicted_output = softmax(output_layer_input)
-    return hidden_layer_output, predicted_output
+def incearca_caz_1(timp_start, lume, stareStart, stareSosire, alfa, gamma, ep_max, eps):
+    traiectorie, ep_cu_pas, recompense_totale = LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma,
+                                                                      ep_max, eps)
+    print("Timp scurs pentru cazul 1: ", time.time() - timp_start)
+    print(f"Numarul de miscari: {len(traiectorie)}")
+    caleTraiectorie(lume, traiectorie)
+    pl.figure(1)
+    pl.plot(ep_cu_pas)
+    plt.title('LumeaGrilei_Q-learning (eps=0.1,alfa=0.1)')
+    pl.xlabel("Numarul de pasi facuti")
+    pl.ylabel("Numarul de episoade")
+    pl.show()
+    pl.figure(2)
+    pl.plot(recompense_totale)
+    plt.title('Recompense Totale per Episod')
+    pl.xlabel("Episoade")
+    pl.ylabel("Recompensa Totala")
+    pl.show()
 
 
-# Pasul 5: Propagarea înapoi
-def backward_pass(inputs, actual_labels, hidden_layer_output, predicted_output, weights_hidden_output):
-    samples = inputs.shape[0]
-    error_output_layer = predicted_output - actual_labels
-    grad_weights_hidden_output = np.dot(hidden_layer_output.T, error_output_layer) / samples
-    grad_bias_output = np.sum(error_output_layer, axis=0, keepdims=True) / samples
-    error_hidden_layer = np.dot(error_output_layer, weights_hidden_output.T)
-    error_hidden_layer[hidden_layer_output <= 0] = 0  # Aplicăm derivata ReLU
-    grad_weights_input_hidden = np.dot(inputs.T, error_hidden_layer) / samples
-    grad_bias_hidden = np.sum(error_hidden_layer, axis=0, keepdims=True) / samples
-    return grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output
+def incearca_caz_2(timp_start, lume, stareStart, stareSosire, alfa, gamma, ep_max, eps):
+    traiectorie, ep_cu_pas, recompense_totale = LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma,
+                                                                      ep_max, eps)
+    print("Timp scurs pentru cazul 2: ", time.time() - timp_start)
+    print(f"Numarul de miscari: {len(traiectorie)}")
+    caleTraiectorie(lume, traiectorie)
+    pl.figure(1)
+    pl.plot(ep_cu_pas)
+    plt.title('LumeaGrilei_Q-learning (eps=0.2,alfa=0.1)')
+    pl.xlabel("Numarul de pasi facuti")
+    pl.ylabel("Numarul de episoade")
+    pl.show()
+    pl.figure(2)
+    pl.plot(recompense_totale)
+    plt.title('Recompense Totale per Episod')
+    pl.xlabel("Episoade")
+    pl.ylabel("Recompensa Totala")
+    pl.show()
 
 
-def update_parameters(weights_input_hidden, bias_hidden, weights_hidden_output, bias_output, grad_weights_input_hidden,
-                      grad_bias_hidden, grad_weights_hidden_output, grad_bias_output, learning_rate):
-    weights_input_hidden -= learning_rate * grad_weights_input_hidden
-    bias_hidden -= learning_rate * grad_bias_hidden
-    weights_hidden_output -= learning_rate * grad_weights_hidden_output
-    bias_output -= learning_rate * grad_bias_output
-    return weights_input_hidden, bias_hidden, weights_hidden_output, bias_output
+def incearca_caz_3(timp_start, lume, stareStart, stareSosire, alfa, gamma, ep_max, eps):
+    traiectorie, ep_cu_pas, recompense_totale = LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma,
+                                                                      ep_max, eps)
+    print("Timp scurs pentru cazul 3: ", time.time() - timp_start)
+    print(f"Numarul de miscari: {len(traiectorie)}")
+    caleTraiectorie(lume, traiectorie)
+    pl.figure(1)
+    pl.plot(ep_cu_pas)
+    plt.title('LumeaGrilei_Q-learning (eps=0.5,alfa=0.2)')
+    pl.xlabel("Numarul de pasi facuti")
+    pl.ylabel("Numarul de episoade")
+    pl.show()
+    pl.figure(2)
+    pl.plot(recompense_totale)
+    plt.title('Recompense Totale per Episod')
+    pl.xlabel("Episoade")
+    pl.ylabel("Recompensa Totala")
+    pl.show()
 
 
-def to_one_hot(labels, num_classes):
-    one_hot_labels = np.zeros((labels.size, num_classes))
-    one_hot_labels[np.arange(labels.size), labels] = 1
-    return one_hot_labels
+if __name__ == '__main__':
+    start = (3, 0)
+    sosire = (3, 7)
+    lume = LumeaGrilei()
 
-
-# Pasul 6: Antrenarea rețelei
-def train_network(train_features, train_labels, num_features, num_hidden_neurons, num_output_classes, learning_rate,
-                  num_epochs):
-    weights_input_hidden = np.random.randn(num_features, num_hidden_neurons)
-    bias_hidden = np.zeros((1, num_hidden_neurons))
-    weights_hidden_output = np.random.randn(num_hidden_neurons, num_output_classes)
-    bias_output = np.zeros((1, num_output_classes))
-
-    train_labels_one_hot = to_one_hot(train_labels, num_output_classes)
-
-    for epoch in range(num_epochs):
-        hidden_output, predicted_output = forward_pass(train_features, weights_input_hidden, bias_hidden,
-                                                       weights_hidden_output, bias_output)
-        loss = cross_entropy_loss(predicted_output, train_labels_one_hot)
-        grad_weights_input_hidden, grad_bias_hidden, grad_weights_hidden_output, grad_bias_output = backward_pass(
-            train_features, train_labels_one_hot, hidden_output, predicted_output, weights_hidden_output)
-        weights_input_hidden, bias_hidden, weights_hidden_output, bias_output = (
-            update_parameters(weights_input_hidden,
-                              bias_hidden,
-                              weights_hidden_output,
-                              bias_output,
-                              grad_weights_input_hidden,
-                              grad_bias_hidden,
-                              grad_weights_hidden_output,
-                              grad_bias_output,
-                              learning_rate))
-
-        if epoch % 100 == 0:
-            print(f"Epoch {epoch}, Loss: {loss}")
-
-    return weights_input_hidden, bias_hidden, weights_hidden_output, bias_output
-
-
-# Pasul 7: Testarea rețelei
-def predict(test_features, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output):
-    _, predicted_output = forward_pass(test_features, weights_input_hidden, bias_hidden, weights_hidden_output,
-                                       bias_output)
-    predicted_labels = np.argmax(predicted_output, axis=1)
-    return predicted_labels
-
-
-def evaluate_network(test_features, test_labels, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output):
-    predicted_labels = predict(test_features, weights_input_hidden, bias_hidden, weights_hidden_output, bias_output)
-    accuracy = np.mean(predicted_labels == test_labels)
-    return accuracy
-
-
-# Antrenarea și evaluarea rețelei
-trained_weights_input_hidden, trained_bias_hidden, trained_weights_hidden_output, trained_bias_output = train_network(
-    train_features, train_labels, num_features, num_hidden_neurons, num_output_classes, learning_rate, num_epochs)
-test_accuracy = evaluate_network(test_features, test_labels, trained_weights_input_hidden, trained_bias_hidden,
-                                 trained_weights_hidden_output, trained_bias_output)
-print(f"Test Accuracy: {test_accuracy}")
+    timp_start = time.time()
+    incearca_caz_1(timp_start, lume, stareStart=start, stareSosire=sosire, alfa=0.5, gamma=1, ep_max=300, eps=0.1)
+    afiseazaPolitica(lume)
+    timp_start = time.time()
+    incearca_caz_2(timp_start, lume, stareStart=start, stareSosire=sosire, alfa=0.1, gamma=1, ep_max=300, eps=0.2)
+    afiseazaPolitica(lume)
+    timp_start = time.time()
+    incearca_caz_3(timp_start, lume, stareStart=start, stareSosire=sosire, alfa=0.2, gamma=1, ep_max=300, eps=0.5)
+    afiseazaPolitica(lume)
