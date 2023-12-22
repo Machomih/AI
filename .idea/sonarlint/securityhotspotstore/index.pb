@@ -11,3 +11,9 @@ A
 seeds_dataset.txt,e/9/e9ae617305186fbe6ba2ce526c063a0783130e34
 8
 Tema5.py,3/8/389c9245e9eabf33a198c115f38128a3df28a9e3
+8
+Tema6.py,4/1/41d47eea8d93a399aa2a72e61ab557951d786bbd
+<
+chatgpt.json,c/c/cc6625830c2cab49f806cb1c14e0102f358018c6
+=
+chatgpt2.json,5/c/5c6ef27136f7b40b645b0786cddac00666e180f6

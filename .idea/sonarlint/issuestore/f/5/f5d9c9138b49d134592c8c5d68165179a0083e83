@@ -6,16 +6,15 @@ wpython:S1192Ÿ"RDefine a constant instead of duplicating this literal "Recom
 zpython:S117"WRename this parameter "stareSosire" to match the regular expression ^[_a-z][a-z0-9_]*$.(©«²Òûÿÿÿÿ8—ÅÉ¾Ä1
 ypython:S117"VRename this parameter "stareStart" to match the regular expression ^[_a-z][a-z0-9_]*$.(©«²Òûÿÿÿÿ8™ÅÉ¾Ä1
 vpython:S100"SRename method "seteazaTerminal" to match the regular expression ^[a-z_][a-z0-9_]*$.(©«²Òûÿÿÿÿ8™ÅÉ¾Ä1
-qpython:S100"SRename method "urmatoareaStare" to match the regular expression ^[a-z_][a-z0-9_]*$.(ş¦„Ò8šÅÉ¾Ä1
 hpython:S5632,"IChange this code so that it raises an object deriving from BaseException.(À¡Í£8›ÅÉ¾Ä1
-rpython:S1006"TRename method "verificaTerminal" to match the regular expression ^[a-z_][a-z0-9_]*$.(ùÄà³8ÅÉ¾Ä1
+rpython:S1006"TRename method "verificaTerminal" to match the regular expression ^[a-z_][a-z0-9_]*$.(ùÄà³8á¸öÀÄ1
 xpython:S1009"URename method "functieRecompensa" to match the regular expression ^[a-z_][a-z0-9_]*$.(Æÿœëúÿÿÿÿ8ÅÉ¾Ä1
 tpython:S1542@"URename function "caleTraiectorie" to match the regular expression ^[a-z_][a-z0-9_]*$.(÷¼“¬8ÅÉ¾Ä1
 zpython:S117J"WRename this parameter "stareSosire" to match the regular expression ^[_a-z][a-z0-9_]*$.(ş…ûÆşÿÿÿÿ8 ÅÉ¾Ä1
 ypython:S117J"VRename this parameter "stareStart" to match the regular expression ^[_a-z][a-z0-9_]*$.(ş…ûÆşÿÿÿÿ8¡ÅÉ¾Ä1
 python:S1542J"[Rename function "LumeaGrilei_QLearning" to match the regular expression ^[a-z_][a-z0-9_]*$.(ş…ûÆşÿÿÿÿ8¢ÅÉ¾Ä1
 xpython:S3776J"TRefactor this function to reduce its Cognitive Complexity from 21 to the 15 allowed.(ş…ûÆşÿÿÿÿ8¢ÅÉ¾Ä1
-cpython:S6711S"DUse a "numpy.random.Generator" here instead of this legacy function.(Ë©©›8£ÅÉ¾Ä1
+hpython:S6711S"DUse a "numpy.random.Generator" here instead of this legacy function.(‹ÆºÊÿÿÿÿÿ8£ÅÉ¾Ä1
 vpython:S1542U"RRename function "actiuneLacom" to match the regular expression ^[a-z_][a-z0-9_]*$.(ç—£ıÿÿÿÿ8¤ÅÉ¾Ä1
 Rpython:S1172^".Remove the unused function parameter "episod".(¯¤šùÿÿÿÿ8¤ÅÉ¾Ä1
 rpython:S1542^"NRename function "epsLacom" to match the regular expression ^[a-z_][a-z0-9_]*$.(¯¤šùÿÿÿÿ8¥ÅÉ¾Ä1

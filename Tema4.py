@@ -27,23 +27,23 @@ class LumeaGrilei(object):
         self.start = self.celula(stareStart)
         self.sosire = self.celula(stareSosire)
 
-    def urmatoareaStare(self, stare, actiune):
+    def urmatoarea_stare(self, stare, actiune):
         x = stare % self.coloane
         y = (stare - x) / self.coloane
-        del_x = 0
-        del_y = 0
+        deplasare_x = 0
+        deplasare_y = 0
         if actiune == 'E':
-            del_x = 1
+            deplasare_x = 1
         elif actiune == 'V':
-            del_x = -1
+            deplasare_x = -1
         elif actiune == 'N':
-            del_y = -1
+            deplasare_y = -1
         elif actiune == 'S':
-            del_y = 1
+            deplasare_y = 1
         else:
             raise ('Actiune Invalida! Actiunile trebuie sa fie in: ', self.lista_actiuni)
-        nou_x = max(0, min(x + del_x, self.x_max))
-        nou_y = max(0, min(y + del_y, self.y_max))
+        nou_x = max(0, min(x + deplasare_x, self.x_max))
+        nou_y = max(0, min(y + deplasare_y, self.y_max))
         if nou_x in self.vant_1:
             nou_y = max(0, nou_y - 1)
         if nou_x in self.vant_2:
@@ -76,11 +76,11 @@ def LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma=1, ep_max=3
 
     for stare in range(lume.randuri * lume.coloane):
         q_tabel[stare] = {}
-        for act in lume.lista_actiuni:
+        for actiune in lume.lista_actiuni:
             if lume.verificaTerminal(stare):
-                q_tabel[stare][act] = 0
+                q_tabel[stare][actiune] = 0
             else:
-                q_tabel[stare][act] = np.random.rand()
+                q_tabel[stare][actiune] = np.random.rand()
 
     def actiuneLacom(_dictionar_q):
         act_lacom = ''
@@ -107,22 +107,22 @@ def LumeaGrilei_QLearning(lume, stareStart, stareSosire, alfa, gamma=1, ep_max=3
     traiectorie = []
     recompense_totale = []
     for ep in range(1, ep_max + 1):
-        s = lume.start
+        stare_curenta = lume.start
         traiectorie = []
         recompensa_totala = 0
-        while not lume.verificaTerminal(s):
-            act = epsLacom(ep, q_tabel[s])
-            s_urm = lume.urmatoareaStare(s, act)
-            recompensa = lume.functieRecompensa(s_urm)
+        while not lume.verificaTerminal(stare_curenta):
+            actiune = epsLacom(ep, q_tabel[stare_curenta])
+            stare_urm = lume.urmatoarea_stare(stare_curenta, actiune)
+            recompensa = lume.functieRecompensa(stare_urm)
 
             recompensa_totala += recompensa
 
-            act_urm = actiuneLacom(q_tabel[s_urm])
-            q_tabel[s][act] += alfa * (recompensa + gamma * q_tabel[s_urm][act_urm] - q_tabel[s][act])
+            act_urm = actiuneLacom(q_tabel[stare_urm])
+            q_tabel[stare_curenta][actiune] += alfa * (recompensa + gamma * q_tabel[stare_urm][act_urm] - q_tabel[stare_curenta][actiune])
 
-            traiectorie.append(s)
+            traiectorie.append(stare_curenta)
 
-            s = s_urm
+            stare_curenta = stare_urm
             ep_cu_pas.append(ep)
         traiectorie.append(lume.sosire)
         recompense_totale.append(recompensa_totala)
